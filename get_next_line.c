@@ -5,142 +5,87 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: mgruson <mgruson@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/07/01 12:41:57 by mgruson           #+#    #+#             */
-/*   Updated: 2022/08/12 16:20:52 by mgruson          ###   ########.fr       */
+/*   Created: 2023/01/04 16:48:28 by mgruson           #+#    #+#             */
+/*   Updated: 2023/01/06 13:20:18 by mgruson          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-char	*pull_end_line(char *work_line)
+int is_end_of_line(char *str)
 {
-	int		i;
-	char	*tmp;
-
-	i = 0;
-	if (work_line)
+	int i = 0;
+	
+	if (!str)
+		return (0);
+	while (str[i])
 	{
-		tmp = malloc(sizeof(char) * ((ft_strlen(work_line)) + 1));
-		if (!tmp)
-			return (NULL);
-		while (work_line[i])
-		{
-			tmp[i] = work_line[i];
-			i++;
-		}
-		tmp[i] = '\0';
-	}
-	if (!work_line)
-	{
-		tmp = malloc(sizeof(char) * 1);
-		if (!tmp)
-			return (NULL);
-		tmp[0] = '\0';
-	}
-	return (tmp);
-}
-
-char	*stock_end_line(char *work_line, char *print_line)
-{
-	int			j;
-	static char	tmp[BUFFER_SIZE + 1];
-	int			print_line_len;
-
-	j = 0;
-	tmp[BUFFER_SIZE] = '\0';
-	print_line_len = ft_strlen(print_line);
-	if (!work_line)
-		return (free(work_line), NULL);
-	while (work_line[print_line_len])
-		tmp[j++] = work_line[print_line_len++];
-	tmp[j] = '\0';
-	return (free(work_line), tmp);
-}
-
-char	*get_print_line(char *src)
-{
-	int		i;
-	char	*tmp;
-	int		len;
-
-	len = ft_strlen(src);
-	i = 0;
-	if (!src || len == 0)
-		return (NULL);
-	while (src[i] != '\n' && i < len)
-	{
+		if (str[i] == '\n')
+			return (1);
 		i++;
 	}
-	i++;
-	tmp = malloc(sizeof(char) * (i + 1));
-	if (!tmp)
-		return (NULL);
-	tmp[i] = '\0';
-	while (i > 0)
-	{
-		i--;
-		tmp[i] = src[i];
-	}
-	return (tmp);
+	return (0);
 }
 
-char	*get_work_line(int fd, char *work_line)
+char *get_line(char *line, char *buffer)
 {
-	char	*buf;
-	int		buflen;
-
-	buflen = 1;
-	buf = malloc(sizeof(char) * (BUFFER_SIZE + 1));
-	if (!buf)
-	{
+	int i = 0;
+	int j = 0;
+	if (!line)
 		return (NULL);
-	}
-	while (!ft_memchr(work_line, '\n', ft_strlen(work_line)) && buflen != 0)
+	while (line[i] && line[i] != '\n')
+		i++;
+	if (line[i] == '\n')
+		i++;
+	while(line[i])
 	{
-		buflen = read(fd, buf, (BUFFER_SIZE));
-		if (buflen == -1)
-			return (free(buf), NULL);
-		buf[buflen] = '\0';
-		if (buflen < ft_strlen(work_line) || buflen == 0)
-			buf[buflen] = '\0';
-		work_line = ft_strjoin(work_line, buf);
+		buffer[j] = line[i];
+		line[i] = '\0';
+		j++;
+		i++;
 	}
-	return (free(buf), work_line);
+	return (line);
 }
 
-char	*get_next_line(int fd)
+char *get_next_line(int fd)
 {
-	static char	*work_line;
-	char		*print_line;
-
-	if (fd < 0 || fd > 1024 || BUFFER_SIZE <= 0 || read(fd, 0, 0) == -1)
+	static char buffer[BUFFER_SIZE + 1];
+	char *line;
+	static int rd = 0;
+	
+	if (fd < 0 || fd > 1024 || BUFFER_SIZE <= 0)
 		return (NULL);
-	work_line = pull_end_line(work_line);
-	work_line = get_work_line(fd, work_line);
-	print_line = get_print_line(work_line);
-	work_line = stock_end_line(work_line, print_line);
-	return (print_line);
+	line = NULL;
+	if (rd > 0 && buffer[0])
+	{
+		line = ft_strdup(buffer);
+	}
+	rd = BUFFER_SIZE;
+	while(!is_end_of_line(line) && rd == BUFFER_SIZE)
+	{
+		rd = read(fd, buffer, BUFFER_SIZE);
+		if (rd > 0)
+		{
+			line = ft_strjoin(line, buffer);
+		}
+	}
+	line = get_line(line, buffer);
+	return (line);
 }
 
-int main(void)
+int	main(void)
 {
 	int		fd;
-	char	*line;
-
-	fd = 0;
+	char	*str = "start";
+	int i = 0;
+	
 	fd = open("get_next_line.c", O_RDONLY);
-	line = get_next_line(fd);
-	printf(" 1 : %s", line);
-	free(line);
-	line = get_next_line(fd);
-	printf(" 2 : %s", line);
-	free(line);
-	line = get_next_line(fd);
-	printf(" 3 : %s", line);
-	free(line);
-	line = get_next_line(fd);
-	printf(" 3 : %s", line);
-	free(line);
-	close(fd);
+	printf("%s\n", str);
+	while(i < 80)
+	{
+		str = get_next_line(fd);
+		printf("%s", str);
+		i++;
+	}
 	return (0);
-} 
+}

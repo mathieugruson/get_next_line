@@ -6,67 +6,62 @@
 /*   By: mgruson <mgruson@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/29 11:43:51 by mgruson           #+#    #+#             */
-/*   Updated: 2022/07/11 18:56:27 by mgruson          ###   ########.fr       */
+/*   Updated: 2023/01/06 13:16:20 by mgruson          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-int	ft_strlen(const char *s)
+int ft_strlen(char *str)
 {
-	size_t	i;
-
-	i = 0;
-	if (!s)
+	int i = 0;
+	
+	if (!str)
 		return (0);
-	while (s[i] != '\0')
-	{
+	while (str[i])
 		i++;
-	}
 	return (i);
 }
 
-char	*ft_strjoin(char *s1, char *s2)
+char *ft_strjoin(char *line, char *buffer)
 {
-	size_t	i;
-	int		l;
-	char	*s3;
-	int		len_s1;
-	int		len_s2;
-
-	len_s1 = ft_strlen(s1);
-	len_s2 = ft_strlen(s2);
-	i = 0;
-	l = 0;
-	if ((!s1 && !s2) || len_s1 + len_s2 == 0)
-		return (free(s1), NULL);
-	s3 = malloc((len_s1 + len_s2 + 1) * sizeof(char));
-	if (!s3)
-		return (free(s1), NULL);
-	while (s1 && s1[i])
-		s3[l++] = s1[i++];
-	s3[l] = '\0';
-	i = 0;
-	while (s2 && s2[i])
-		s3[l++] = s2[i++];
-	s3[l] = '\0';
-	return (free(s1), s3);
-}
-
-int	ft_memchr(char *s, int c, size_t n)
-{
-	size_t	i;
-
-	i = 0;
-	if (n == 0 || !s)
-		return (0);
-	while (i < n && s[i])
-	{
-		if (((char unsigned *)s)[i] == (unsigned char)c)
-		{
-			return (1);
-		}
+	char *res;
+	int i = 0;
+	int j = 0;
+	
+	res = malloc(ft_strlen(line) + ft_strlen(buffer) + 1);
+	while(line && line[i])
+	{	
+		res[i] = line[i];
 		i++;
 	}
-	return (0);
+	while(buffer && buffer[j])
+	{
+		res[i] = buffer[j];
+		buffer[j] = '\0';
+		i++;
+		j++;
+	}
+	res[i] = '\0';
+	if (line)
+		free(line);
+	return (res);
+}
+
+char *ft_strdup(char *str)
+{
+	int i = 0;
+	char *res;
+	
+	if (!str)
+		return (NULL);
+	res = malloc(ft_strlen(str) + 1);
+	while(str[i])
+	{
+		res[i] = str[i];
+		str[i] = '\0';
+		i++;
+	}
+	res[i] = '\0';
+	return (res);
 }
