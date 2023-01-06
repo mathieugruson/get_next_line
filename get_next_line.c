@@ -6,7 +6,7 @@
 /*   By: mgruson <mgruson@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/04 16:48:28 by mgruson           #+#    #+#             */
-/*   Updated: 2023/01/06 13:20:18 by mgruson          ###   ########.fr       */
+/*   Updated: 2023/01/06 13:24:48 by mgruson          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,17 +57,13 @@ char *get_next_line(int fd)
 		return (NULL);
 	line = NULL;
 	if (rd > 0 && buffer[0])
-	{
 		line = ft_strdup(buffer);
-	}
 	rd = BUFFER_SIZE;
 	while(!is_end_of_line(line) && rd == BUFFER_SIZE)
 	{
 		rd = read(fd, buffer, BUFFER_SIZE);
 		if (rd > 0)
-		{
 			line = ft_strjoin(line, buffer);
-		}
 	}
 	line = get_line(line, buffer);
 	return (line);
